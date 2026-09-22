@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Library - Transactions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>📖 Borrow / Return</h2>
+    <div class="mb-3">
+        <a href="/books" class="btn btn-info">View Books</a>
+        <a href="/members" class="btn btn-info">View Members</a>
+    </div>
+
+    <!-- Borrow Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">Borrow a Book</div>
+        <div class="card-body">
+            <form action="/transactions/borrow" method="post">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Book</label>
+                        <select name="bookId" class="form-control" required>
+                            <option value="">Select Book</option>
+                            <option th:each="b : ${books}" th:value="${b.bookId}" 
+                                    th:text="${b.title} + ' (' + ${b.author} + ')'"
+                                    th:disabled="${!b.available}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Member</label>
+                        <select name="memberId" class="form-control" required>
+                            <option value="">Select Member</option>
+                            <option th:each="m : ${members}" th:value="${m.memberId}" 
+                                    th:text="${m.name} + ' (' + ${m.email} + ')'">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Days to Borrow</label>
+                        <input type="number" name="days" value="14" class="form-control" required>
+                    </div>
+                    <div class="col-md-1">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-success form-control">Borrow</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <h4>Transaction History</h4>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Book ID</th>
+                <th>Member ID</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Fine</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="t : ${transactions}">
+                <td th:text="${t.transactionId}">1</td>
+                <td th:text="${t.bookId}">B1</td>
+                <td th:text="${t.memberId}">M1</td>
+                <td th:text="${t.borrowDate}">Date</td>
+                <td th:text="${t.dueDate}">Date</td>
+                <td th:text="${t.returnDate}">Date</td>
+                <td th:text="${t.fine}">0.00</td>
+                <td>
+                    <span th:if="${t.status == 'BORROWED'}" class="badge bg-warning">BORROWED</span>
+                    <span th:unless="${t.status == 'BORROWED'}" class="badge bg-secondary">RETURNED</span>
+                </td>
+                <td>
+                    <form th:if="${t.status == 'BORROWED'}" action="/transactions/return" method="post">
+                        <input type="hidden" name="transactionId" th:value="${t.transactionId}">
+                        <button type="submit" class="btn btn-primary btn-sm">Return</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
